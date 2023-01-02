@@ -1,0 +1,51 @@
+cabal-version:      2.4
+name:               website
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+-- The license under which the package is released.
+-- license:
+author:             André Danielsson
+maintainer:         andredanielsson93@gmail.com
+
+-- A copyright notice.
+-- copyright:
+-- category:
+extra-source-files: CHANGELOG.md
+
+executable website
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    -- other-modules:
+    other-modules:    App
+                    , Config
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+    build-depends:    base
+                    , servant
+                    , servant-server
+                    , http-types
+                    , transformers
+                    , wai
+                    , wai-extra
+                    , warp
+    hs-source-dirs:   server/src
+    default-language: Haskell2010
+
+executable generate-elm
+    main-is:          Generate.hs
+    build-depends:    base
+                    -- servant-elm is currently marked as broken on nixpkgs
+                    -- , servant-elm
+    hs-source-dirs:   server/src
+    default-language: Haskell2010
