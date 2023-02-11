@@ -1,4 +1,4 @@
-{ nixpkgs ? import <nixpkgs> {} }:
+{ nixpkgs }:
 with nixpkgs;
 let
   server = haskell.lib.justStaticExecutables

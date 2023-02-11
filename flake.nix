@@ -11,7 +11,7 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in
     rec {
-      website = pkgs.callPackage ./website.nix { };
+      website = pkgs.callPackage ./website.nix { nixpkgs = pkgs; };
       packages.app = website.server;
       defaultPackage = packages.app;
 
