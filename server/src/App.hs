@@ -14,7 +14,8 @@ import Network.Wai (responseFile)
 
 import Config ( Config(..), AppM )
 
-type API = Raw
+type API = "blog" :> BlogAPI
+  Raw
 
 appApi :: Proxy API
 appApi = Proxy
