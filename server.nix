@@ -1,4 +1,4 @@
-{ mkDerivation, base, servant, servant-server
+{ mkDerivation, base, servant, servant-server, servant-elm
 , transformers, wai, wai-extra, warp, lib }:
 mkDerivation {
   pname = "website";
@@ -10,6 +10,7 @@ mkDerivation {
   executableHaskellDepends = [
     base
     servant
+    servant-elm
     servant-server
     transformers
     wai

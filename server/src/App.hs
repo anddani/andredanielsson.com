@@ -4,7 +4,7 @@
 
 module App (app) where
 
-import Servant (Raw, serveDirectoryFileServer)
+import Servant ((:>), Raw, serveDirectoryFileServer)
 import Servant.Server (ServerT, Tagged(..), Application, serve, hoistServer)
 import Control.Monad.Trans.Reader (ReaderT, asks)
 import Data.Proxy (Proxy (Proxy))
@@ -12,7 +12,8 @@ import Control.Monad.Trans.Reader (runReaderT)
 import Network.HTTP.Types (status200)
 import Network.Wai (responseFile)
 
-import Config ( Config(..), AppM )
+import Blog.API (BlogAPI)
+import Config (Config(..), AppM)
 
 type API = "blog" :> BlogAPI
   Raw

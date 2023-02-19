@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module API (BlogAPI, blogAPI) where
+module Blog.API (BlogAPI, blogAPI) where
 
 import Servant.API.ContentTypes (JSON)
 import Servant (ServerT)

@@ -2,13 +2,19 @@
   description = "My personal website";
 
   inputs = {
-    nixpkgs.url = github:nixos/nixpkgs/nixos-unstable;
+    # nixpkgs.url = github:nixos/nixpkgs/nixos-unstable;
+    nixpkgs.follows = "haskellNix/nixpkgs-unstable";
+    haskellNix.url = github:input-output-hk/haskell.nix;
     flake-utils.url = github:numtide/flake-utils;
   };
 
-  outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, haskellNix }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        inherit (haskellNix) config;
+        # config = { allowBroken = true; };
+      };
     in
     rec {
       website = pkgs.callPackage ./website.nix { nixpkgs = pkgs; };

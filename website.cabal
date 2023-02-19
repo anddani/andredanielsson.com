@@ -33,6 +33,7 @@ executable website
     -- other-extensions:
     build-depends:    base
                     , servant
+                    , servant-elm
                     , servant-server
                     , http-types
                     , transformers
