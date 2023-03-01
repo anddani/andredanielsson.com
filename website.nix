@@ -16,6 +16,12 @@ let
   env = stdenv.mkDerivation rec {
     name = "website-env";
     env = buildEnv { name = name; paths = buildInputs; };
+    shellHook = ''
+      export HTMLFILE=${client}
+      export PRODUCTION=0
+      echo "$HTMLFILE"
+      ${server}/bin/website
+    '';
     buildInputs = [
       zlib
       elm2nix

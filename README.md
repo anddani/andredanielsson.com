@@ -15,4 +15,8 @@
 
 # How to build
 
-`$ `
+If on Apple Silicon:
+
+`$ sudo softwareupdate --install-rosetta --agree-to-license`
+
+`$ nix-shell`
