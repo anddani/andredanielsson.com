@@ -28,11 +28,13 @@ executable website
     -- other-modules:
     other-modules:    App
                     , Config
+                    , Blog.API
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:    base
                     , servant
+                    , servant-elm
                     , servant-server
                     , http-types
                     , transformers
