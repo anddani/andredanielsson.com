@@ -10,7 +10,6 @@ type AppM = ReaderT Config Handler
 data Config = Config
   { appEnv :: Environment
   , htmlPath :: FilePath
-  , staticDir :: FilePath
   }
 
 data Environment

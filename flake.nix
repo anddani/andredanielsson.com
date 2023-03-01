@@ -13,7 +13,6 @@
       pkgs = import nixpkgs {
         inherit system;
         inherit (haskellNix) config;
-        # config = { allowBroken = true; };
       };
     in
     rec {

@@ -1,8 +1,14 @@
 { nixpkgs }:
 with nixpkgs;
 let
+  # Workaround for https://github.com/haskell-servant/servant/pull/1629
+  hpkgs = haskellPackages.override {
+    overrides = self: super: with haskell.lib; {
+      servant-elm = dontCheck super.servant-elm;
+    };
+  };
   server = haskell.lib.justStaticExecutables
-    ( haskellPackages.callPackage ./server.nix rec {} );
+    ( hpkgs.callPackage ./server.nix rec {} );
 
   client = import ./client/default.nix { nixpkgs = nixpkgs; };
   staticDirectory = ./client/static;

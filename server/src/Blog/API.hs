@@ -1,24 +1,30 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeOperators     #-}
+
 
 module Blog.API (BlogAPI, blogAPI) where
 
 import Servant.API.ContentTypes (JSON)
-import Servant (ServerT)
-import Servant.Elm (deriveBoth, deriveBoth)
+import Servant (ServerT, Get)
+import Servant.Elm (deriveBoth, defaultOptions)
 
-import qualified Config as C
+import Config (AppM)
 
 type BlogAPI = Get '[JSON] TestResponse
 
 data TestResponse = TestResponse
-  { value :: String
+  { name :: String
   } deriving (Eq, Show)
 
-blogAPI :: ServerT BlogAPI C.AppM
+blogAPI :: ServerT BlogAPI AppM
 blogAPI = root'
   where
-    root' :: C.AppM TestResponse
+    root' :: AppM TestResponse
     root' = do
       return TestResponse { name = "example" }
 
-deriveBoth defaultOptions ''BlogAPI
+deriveBoth defaultOptions ''TestResponse
+

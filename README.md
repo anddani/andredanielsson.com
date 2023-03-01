@@ -12,3 +12,7 @@
 - [ ] Implement blog functionality
     - [persistent](https://hackage.haskell.org/package/persistent) - Type safe postgres queries
     - [servant-elm](https://hackage.haskell.org/package/servant-elm) - Generate Elm functions to query and parse servant endpoints
+
+# How to build
+
+`$ `

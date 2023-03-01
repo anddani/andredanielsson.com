@@ -1,4 +1,4 @@
-{ system ? "x86_64-linux", pkgs ? import <nixpkgs> { system = "x86_64-darwin"; } }:
+{ system ? "x86_64-linux", pkgs ? import <nixpkgs> { system = "aarch64-darwin"; } }:
 let
   website = pkgs.haskellPackages.callPackage ./website.nix {};
 in
@@ -7,7 +7,7 @@ in
     config = {
       Cmd = [ "${website.server}" ];
       Env = [
-        "HTMLPATH=${website.client}"
+        "HTMLFILE=${website.client}"
         "PRODUCTION=1"
         ];
     };
