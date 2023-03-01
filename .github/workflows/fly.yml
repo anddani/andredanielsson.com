@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - main
+env:
+  NIXPKGS_ALLOW_BROKEN: 1
+
 jobs:
   # build:
   #   runs-on: ubuntu-latest
