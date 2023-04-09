@@ -67,9 +67,15 @@
       defaultDockerContainer = dockerContainers.app;
 
       devShell = pkgs.mkShell {
-        buildInputs = [
-          pkgs.flyctl
+        buildInputs = with pkgs; with pkgs.nodePackages; [
+          nodejs-19_x
+          elmPackages.elm
         ];
+        shellHook = ''
+          export PATH=$(realpath ./node_modules/.bin):$PATH
+          export NODE_PATH=$(realpath ./node_modules)
+          '';
+
       };
 
       hydraJobs = {

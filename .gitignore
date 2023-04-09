@@ -1,3 +1,7 @@
 dist-newstyle
 result*
 elm-stuff
+.DS_Store
+node_modules
+.elm-pages
+dist
