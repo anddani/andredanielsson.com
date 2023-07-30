@@ -11,15 +11,17 @@ import Elm.Declare
 import Elm.Let
 import Elm.Op
 import Gen.BackendTask
-import Gen.Debug
 import Gen.Effect as Effect
+import Gen.FatalError
 import Gen.Form as Form
 import Gen.Form.FieldView as FieldView
 import Gen.Html as Html
 import Gen.Html.Attributes as Attr
+import Gen.Json.Encode
 import Gen.List
+import Gen.Maybe
+import Gen.Pages.Form as PagesForm
 import Gen.Pages.Script
-import Gen.Platform.Sub
 import Gen.Server.Request as Request
 import Gen.Server.Response as Response
 import Gen.View
@@ -79,7 +81,7 @@ createFile { moduleName, fields } =
                                                 fieldView (Elm.string name) param
                                             )
                                      )
-                                        ++ [ Elm.ifThen formState.isTransitioning
+                                        ++ [ Elm.ifThen formState.submitting
                                                 (Html.button
                                                     [ Attr.disabled True
                                                     ]
@@ -115,31 +117,57 @@ createFile { moduleName, fields } =
                 (Type.record
                     (case formHelpers of
                         Just _ ->
-                            [ ( "errors", Type.namedWith [ "Form" ] "Response" [ Type.string ] )
+                            [ ( "errors", Type.namedWith [ "Form" ] "ServerResponse" [ Type.string ] )
                             ]
 
                         Nothing ->
                             []
                     )
                 )
-            , \routeParams ->
+            , \routeParams request ->
                 formHelpers
                     |> Maybe.map
                         (\justFormHelp ->
-                            Request.formData justFormHelp.formHandlers
-                                |> Request.call_.map
+                            Request.formData justFormHelp.formHandlers request
+                                |> Gen.Maybe.call_.map
                                     (Elm.fn ( "formData", Nothing )
                                         (\formData ->
                                             Elm.Case.tuple formData
                                                 "response"
                                                 "parsedForm"
                                                 (\response parsedForm ->
-                                                    Elm.Case.result parsedForm
-                                                        { err =
-                                                            ( "error"
-                                                            , \error ->
-                                                                Gen.Debug.toString error
-                                                                    |> Gen.Pages.Script.call_.log
+                                                    Elm.Case.custom parsedForm
+                                                        Type.int
+                                                        [ Elm.Case.branch1 "Form.Valid"
+                                                            ( "validatedForm", Type.int )
+                                                            (\validatedForm ->
+                                                                Elm.Case.custom validatedForm
+                                                                    Type.int
+                                                                    [ Elm.Case.branch1 "Action"
+                                                                        ( "parsed", Type.int )
+                                                                        (\parsed ->
+                                                                            Scaffold.Form.recordEncoder parsed fields
+                                                                                |> Gen.Json.Encode.encode 2
+                                                                                |> Gen.Pages.Script.call_.log
+                                                                                |> Gen.BackendTask.call_.map
+                                                                                    (Elm.fn ( "_", Nothing )
+                                                                                        (\_ ->
+                                                                                            Response.render
+                                                                                                (Elm.record
+                                                                                                    [ ( "errors", response )
+                                                                                                    ]
+                                                                                                )
+                                                                                        )
+                                                                                    )
+                                                                        )
+                                                                    ]
+                                                            )
+                                                        , Elm.Case.branch2 "Form.Invalid"
+                                                            ( "parsed", Type.int )
+                                                            ( "error", Type.int )
+                                                            (\_ _ ->
+                                                                "Form validations did not succeed!"
+                                                                    |> Gen.Pages.Script.log
                                                                     |> Gen.BackendTask.call_.map
                                                                         (Elm.fn ( "_", Nothing )
                                                                             (\_ ->
@@ -151,44 +179,28 @@ createFile { moduleName, fields } =
                                                                             )
                                                                         )
                                                             )
-                                                        , ok =
-                                                            ( "okForm"
-                                                            , \okForm ->
-                                                                Gen.Debug.toString okForm
-                                                                    |> Gen.Pages.Script.call_.log
-                                                                    |> Gen.BackendTask.call_.map
-                                                                        (Elm.fn ( "_", Nothing )
-                                                                            (\_ ->
-                                                                                Response.render
-                                                                                    (Elm.record
-                                                                                        [ ( "errors", response )
-                                                                                        ]
-                                                                                    )
-                                                                            )
-                                                                        )
-                                                            )
-                                                        }
+                                                        ]
                                                 )
                                         )
                                     )
+                                |> Gen.Maybe.withDefault
+                                    (Gen.BackendTask.fail
+                                        (Gen.FatalError.fromString "Expected form post")
+                                    )
                         )
                     |> Maybe.withDefault
-                        (Request.succeed
-                            (Gen.BackendTask.succeed
-                                (Response.render
-                                    (Elm.record [])
-                                )
+                        (Gen.BackendTask.succeed
+                            (Response.render
+                                (Elm.record [])
                             )
                         )
             )
         , data =
             ( Alias (Type.record [])
-            , \routeParams ->
-                Request.succeed
-                    (Gen.BackendTask.succeed
-                        (Response.render
-                            (Elm.record [])
-                        )
+            , \routeParams request ->
+                Gen.BackendTask.succeed
+                    (Response.render
+                        (Elm.record [])
                     )
             )
         , head = \app -> Elm.list []
@@ -210,7 +222,16 @@ createFile { moduleName, fields } =
                                     Just justFormHelp ->
                                         [ Html.h2 [] [ Html.text "Form" ]
                                         , justFormHelp.form
-                                            |> Form.renderHtml "form" [] (Elm.get "errors" >> Elm.just) app Elm.unit
+                                            |> PagesForm.call_.renderHtml
+                                                (Elm.list [])
+                                                (Form.options "form"
+                                                    |> Form.withServerResponse
+                                                        (app
+                                                            |> Elm.get "action"
+                                                            |> Gen.Maybe.map (Elm.get "errors")
+                                                        )
+                                                )
+                                                app
                                         ]
 
                                     Nothing ->
@@ -224,20 +245,15 @@ createFile { moduleName, fields } =
                         (Type.named [] "Msg")
                         [ Elm.Case.branch0 "NoOp"
                             (Elm.tuple model
-                                (Effect.none
-                                    |> Elm.withType effectType
-                                )
+                                Effect.none
                             )
                         ]
             , init =
                 \{ shared, app } ->
-                    Elm.tuple (Elm.record [])
-                        (Effect.none
-                            |> Elm.withType effectType
-                        )
+                    Elm.tuple (Elm.record []) Effect.none
             , subscriptions =
                 \{ routeParams, path, shared, model } ->
-                    Gen.Platform.Sub.none
+                    Elm.val "Sub.none"
             , model =
                 Alias (Type.record [])
             , msg =
@@ -294,8 +310,3 @@ errorsView =
                         ]
                     )
         )
-
-
-effectType : Type.Annotation
-effectType =
-    Type.namedWith [ "Effect" ] "Effect" [ Type.var "msg" ]

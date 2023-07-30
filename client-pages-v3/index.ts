@@ -5,8 +5,7 @@ type ElmPagesInit = {
 
 const config: ElmPagesInit = {
   load: async function (elmLoaded) {
-    const app = await elmLoaded;
-    console.log("App loaded", app);
+    await elmLoaded;
   },
   flags: function () {
     return "You can decode this in Shared.elm using Json.Decode.string!";

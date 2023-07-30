@@ -68,7 +68,7 @@
 
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; with pkgs.nodePackages; [
-          nodejs-19_x
+          nodejs
           elmPackages.elm
         ];
         shellHook = ''
