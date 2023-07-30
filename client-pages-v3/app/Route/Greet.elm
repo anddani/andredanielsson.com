@@ -6,7 +6,7 @@ import ErrorPage exposing (ErrorPage)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Html
+import Element
 import Json.Decode as Decode
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
@@ -93,15 +93,14 @@ view :
     -> Shared.Model
     -> View (PagesMsg Msg)
 view app shared =
-    { title = "Greetings"
-    , body =
-        [ Html.div []
-            [ case app.data.name of
-                Just name ->
-                    Html.text ("Hello " ++ name)
+  let nameText =
+        case app.data.name of
+          Just name ->
+            "Hello " ++ name
 
-                Nothing ->
-                    Html.text "Hello, I didn't find your name"
-            ]
-        ]
+          Nothing ->
+            "Hello, I didn't find your name"
+  in
+    { title = "Greetings"
+    , body = [ Element.text nameText ]
     }

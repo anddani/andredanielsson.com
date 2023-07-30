@@ -4,7 +4,7 @@ import BackendTask exposing (BackendTask)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Html
+import Element
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
 import RouteBuilder exposing (App, StatelessRoute)
@@ -82,5 +82,5 @@ view :
     -> View (PagesMsg Msg)
 view app sharedModel =
     { title = "Placeholder - Blog.Slug_"
-    , body = [ Html.text "You're on the page Blog.Slug_" ]
+    , body = [ Element.text "You're on the page Blog.Slug_" ]
     }

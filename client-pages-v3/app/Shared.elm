@@ -1,9 +1,10 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
+module Shared exposing (..)
 
 import BackendTask exposing (BackendTask)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Html exposing (Html)
+import Element exposing (Element)
 import Html.Events
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
@@ -11,6 +12,8 @@ import UrlPath exposing (UrlPath)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
 import View exposing (View)
+import Types
+import Theme
 
 
 template : SharedTemplate Msg Model Data msg
@@ -24,22 +27,14 @@ template =
     }
 
 
-type Msg
-    = SharedMsg SharedMsg
-    | MenuClicked
+type alias Msg = Types.Msg
 
 
 type alias Data =
     ()
 
 
-type SharedMsg
-    = NoOp
-
-
-type alias Model =
-    { showMenu : Bool
-    }
+type alias Model = Types.Model
 
 
 init :
@@ -64,10 +59,10 @@ init flags maybePagePath =
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        SharedMsg globalMsg ->
+        Types.SharedMsg globalMsg ->
             ( model, Effect.none )
 
-        MenuClicked ->
+        Types.MenuClicked ->
             ( { model | showMenu = not model.showMenu }, Effect.none )
 
 
@@ -81,6 +76,7 @@ data =
     BackendTask.succeed ()
 
 
+-- TODO: Header+footer
 view :
     Data
     ->
@@ -92,29 +88,6 @@ view :
     -> View msg
     -> { body : List (Html msg), title : String }
 view sharedData page model toMsg pageView =
-    { body =
-        [ Html.nav []
-            [ Html.button
-                [ Html.Events.onClick MenuClicked ]
-                [ Html.text
-                    (if model.showMenu then
-                        "Close Menu"
-
-                     else
-                        "Open Menu"
-                    )
-                ]
-            , if model.showMenu then
-                Html.ul []
-                    [ Html.li [] [ Html.text "Menu item 1" ]
-                    , Html.li [] [ Html.text "Menu item 2" ]
-                    ]
-
-              else
-                Html.text ""
-            ]
-            |> Html.map toMsg
-        , Html.main_ [] pageView.body
-        ]
-    , title = pageView.title
+    { title = pageView.title
+    , body = Theme.view { page = page, pageView = pageView, sharedData = sharedData } toMsg model pageView
     }

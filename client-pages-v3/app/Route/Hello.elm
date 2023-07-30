@@ -6,7 +6,7 @@ import Effect exposing (Effect)
 import ErrorPage exposing (ErrorPage)
 import FatalError exposing (FatalError)
 import Head
-import Html
+import Element
 import Json.Decode as Decode
 import PagesMsg exposing (PagesMsg)
 import RouteBuilder exposing (App)
@@ -108,7 +108,7 @@ view :
     -> Model
     -> View (PagesMsg Msg)
 view app shared model =
-    { title = "Hello", body = [ Html.text (String.fromInt app.data.stars) ] }
+    { title = "Hello", body = [ Element.text (String.fromInt app.data.stars) ] }
 
 
 action :
